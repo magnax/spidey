@@ -88,7 +88,13 @@ module Spidey
     private
 
     def agent
-      @agent ||= Mechanize.new
+      @agent ||= create_agent
+    end
+
+    def create_agent
+      agent = Mechanize.new
+      agent.user_agent_alias = 'Mac Safari'
+      agent
     end
 
     def self.start_urls
