@@ -4,6 +4,7 @@ require 'mechanize'
 module Spidey
   class AbstractSpider
     attr_accessor :urls, :handlers, :results, :request_interval, :errors
+    attr_reader :proxy_ip, :proxy_port
 
     DEFAULT_REQUEST_INTERVAL = 3 # seconds
 
@@ -20,6 +21,7 @@ module Spidey
       @results = []
       self.class.start_urls.each { |url| handle url, *self.class.handlers[url] }
       @request_interval = attrs[:request_interval] || DEFAULT_REQUEST_INTERVAL
+      @proxy_ip, @proxy_port = attrs[:proxy].try(:split, ':')
     end
 
     # Iterates through URLs queued for handling, including any that are added in the course of crawling. Accepts:
@@ -94,6 +96,8 @@ module Spidey
     def create_agent
       agent = Mechanize.new
       agent.user_agent_alias = 'Mac Safari'
+      agent.set_proxy(@proxy_ip, @proxy_port) if @proxy_ip.present?
+      agent.cookie_jar.clear!
       agent
     end
 
